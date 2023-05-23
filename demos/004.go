@@ -2,9 +2,16 @@ package main
 
 import (
 	"fmt"
-	"math"
 )
 
 func main() {
-	fmt.Print("Hello Go, and the sqrt of 16 is ", math.Sqrt(16))
+	arr := []int{}
+
+	for i := 1; i <= 6; i++ {
+		arr = append(arr, []int{i}...)
+	}
+
+	for i, v := range arr {
+		fmt.Printf("Hello Go! value: %d, index: %d\n", v, i)
+	}
 }

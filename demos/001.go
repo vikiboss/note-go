@@ -5,5 +5,6 @@ import (
 )
 
 func main() {
-	fmt.Print("Hello Go")
+	var msg string = "Hello Go"
+	fmt.Print(msg)
 }

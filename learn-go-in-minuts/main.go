@@ -3,25 +3,25 @@
    注释 */
 
 // 导入包的子句在每个源文件的开头。
-// main比较特殊，它用来声明可执行文件，而不是一个库。
+// main 比较特殊，它用来声明可执行文件，而不是一个库。
 package main
 
-// Import语句声明了当前文件引用的包。
+// Import 语句声明了当前文件引用的包。
 import (
-	"fmt"       // Go语言标准库中的包
+	"fmt"       // Go 语言标准库中的包
 	"io/ioutil" // 包含一些输入输出函数
 	m "math"    // 数学标准库，在此文件中别名为m
-	"net/http"  // 一个web服务器包
+	"net/http"  // 一个 web 服务器包
 	"os"        // 系统底层函数，如文件读写
 	"strconv"   // 字符串转换
 )
 
-// 函数声明：main是程序执行的入口。
-// 不管你喜欢还是不喜欢，反正Go就用了花括号来包住函数体。
+// 函数声明：main 是程序执行的入口。
+// 不管你喜欢还是不喜欢，反正 Go 就用了花括号来包住函数体。
 func main() {
 	// 往标准输出打印一行。
-	// 用包名fmt限制打印函数。
-	fmt.Println("你好世界，sin(10)：", m.Sin(10))
+	// 用包名 fmt 限制打印函数。
+	fmt.Println("你好世界，2 的立方是", m.Pow(2, 3))
 
 	// 调用当前包的另一个函数。
 	beyondHello()
@@ -32,7 +32,7 @@ func main() {
 func beyondHello() {
 	var x int // 变量声明，变量必须在使用之前声明。
 	x = 3     // 变量赋值。
-	// 可以用:=来偷懒，它自动把变量类型、声明和赋值都搞定了。
+	// 可以用 := 来偷懒，它自动把变量类型、声明和赋值都搞定了。
 	y := 4
 	sum, prod := learnMultiple(x, y)        // 返回多个变量的函数
 	fmt.Println("sum:", sum, "prod:", prod) // 简单输出
@@ -40,9 +40,9 @@ func beyondHello() {
 }
 
 /*
-	<- 快看快看我是跨行注释_(:з」∠)_
+	<- 快看快看我是跨行注释 _(:з」∠)_
 
-Go语言的函数可以有多个参数和 *多个* 返回值。
+Go 语言的函数可以有多个参数和 *多个* 返回值。
 在这个函数中， `x`、`y` 是参数，
 `sum`、`prod` 是返回值的标识符（可以理解为名字）且类型为int
 */
@@ -53,31 +53,31 @@ func learnMultiple(x, y int) (sum, prod int) {
 // 内置变量类型和关键词
 func learnTypes() {
 	// 短声明给你所想。
-	str := "少说话多读书!" // String类型
+	str := "少说话多读书!" // String 类型
 
 	s2 := `这是一个
-可以换行的字符串` // 同样是String类型
+可以换行的字符串` // 同样是 String 类型
 
-	// 非ascii字符。Go使用UTF-8编码。
-	g := 'Σ' // rune类型，int32的别名，使用UTF-8编码
+	// 非 ascii 字符。Go 使用 UTF-8 编码。
+	g := 'Σ' // rune 类型，int32 的别名，使用 UTF-8 编码
 
-	f := 3.14195 // float64类型，IEEE-754 64位浮点数
-	c := 3 + 4i  // complex128类型，内部使用两个float64表示
+	f := 3.14195 // float64 类型，IEEE-754 64 位浮点数
+	c := 3 + 4i  // complex128 类型，内部使用两个 float64 表示
 
-	// var变量可以直接初始化。
-	var u uint = 7 // unsigned 无符号变量，但是实现依赖int型变量的长度
+	// var 变量可以直接初始化。
+	var u uint = 7 // unsigned 无符号变量，但是实现依赖 int 型变量的长度
 	var pi float32 = 22. / 7
 
 	// 字符转换
-	n := byte('\n') // byte是uint8的别名
+	n := byte('\n') // byte 是 uint8 的别名
 
 	// 数组（Array）类型的大小在编译时即确定
-	var a4 [4]int           // 有4个int变量的数组，初始为0
-	a3 := [...]int{3, 1, 5} // 有3个int变量的数组，同时进行了初始化
+	var a4 [4]int           // 有 4 个 int 变量的数组，初始为0
+	a3 := [...]int{3, 1, 5} // 有 3 个 int 变量的数组，同时进行了初始化
 
-	// Array和slice各有所长，但是slice可以动态的增删，所以更多时候还是使用slice。
+	// Array 和 slice 各有所长，但是 slice 可以动态的增删，所以更多时候还是使用 slice。
 	s3 := []int{4, 5, 9}    // 回去看看 a3 ，是不是这里没有省略号？
-	s4 := make([]int, 4)    // 分配4个int大小的内存并初始化为0
+	s4 := make([]int, 4)    // 分配 4 个 int 大小的内存并初始化为 0
 	var d2 [][]float64      // 这里只是声明，并未分配内存空间
 	bs := []byte("a slice") // 进行类型转换
 
@@ -85,17 +85,17 @@ func learnTypes() {
 	// 用内置函数 append() 向切片末尾添加元素
 	// 要增添到的目标是 append 函数第一个参数，
 	// 多数时候数组在原内存处顺次增长，如
-	s := []int{1, 2, 3}    // 这是个长度3的slice
-	s = append(s, 4, 5, 6) // 再加仨元素，长度变为6了
+	s := []int{1, 2, 3}    // 这是个长度 3 的 slice
+	s = append(s, 4, 5, 6) // 再加仨元素，长度变为 6 了
 	fmt.Println(s)         // 更新后的数组是 [1 2 3 4 5 6]
 
-	// 除了向append()提供一组原子元素（写死在代码里的）以外，我们
-	// 还可以用如下方法传递一个slice常量或变量，并在后面加上省略号，
-	// 用以表示我们将引用一个slice、解包其中的元素并将其添加到s数组末尾。
-	s = append(s, []int{7, 8, 9}...) // 第二个参数是一个slice常量
+	// 除了向 append() 提供一组原子元素（写死在代码里的）以外，我们
+	// 还可以用如下方法传递一个 slice 常量或变量，并在后面加上省略号，
+	// 用以表示我们将引用一个 slice、解包其中的元素并将其添加到 s 数组末尾。
+	s = append(s, []int{7, 8, 9}...) // 第二个参数是一个 slice 常量
 	fmt.Println(s)                   // 更新后的数组是 [1 2 3 4 5 6 7 8 9]
 
-	p, q := learnMemory() // 声明p,q为int型变量的指针
+	p, q := learnMemory() // 声明 p, q 为 int 型变量的指针
 	fmt.Println(*p, *q)   // * 取值
 
 	// Map是动态可增长关联数组，和其他语言中的hash或者字典相似。
@@ -127,13 +127,13 @@ func learnNamedReturns(x, y int) (z int) {
 	return // 隐式返回z，因为前面指定了它。
 }
 
-// Go全面支持垃圾回收。Go有指针，但是不支持指针运算。
+// Go 全面支持垃圾回收。Go 有指针，但是不支持指针运算。
 // 你会因为空指针而犯错，但是不会因为增加指针而犯错。
 func learnMemory() (p, q *int) {
-	// 返回int型变量指针p和q
-	p = new(int) // 内置函数new分配内存
-	// 自动将分配的int赋值0，p不再是空的了。
-	s := make([]int, 20) // 给20个int变量分配一块内存
+	// 返回 int 型变量指针 p 和 q
+	p = new(int) // 内置函数 new 分配内存
+	// 自动将分配的 int 赋值 0，p 不再是空的了。
+	s := make([]int, 20) // 给 20 个 int 变量分配一块内存
 	s[3] = 7             // 赋值
 	r := -2              // 声明另一个局部变量
 	return &s[3], &r     // & 取地址
@@ -144,43 +144,43 @@ func expensiveComputation() int {
 }
 
 func learnFlowControl() {
-	// if需要花括号，括号就免了
+	// if 需要花括号，括号就免了
 	if true {
 		fmt.Println("这句话肯定被执行")
 	}
-	// 用go fmt 命令可以帮你格式化代码，所以不用怕被人吐槽代码风格了，
+	// 用 go fmt 命令可以帮你格式化代码，所以不用怕被人吐槽代码风格了，
 	// 也不用容忍别人的代码风格。
 	if false {
-		// pout
+		// pout（生气、撅嘴 😠）
 	} else {
-		// gloat
+		// gloat（窃喜，偷笑 😏）
 	}
-	// 如果太多嵌套的if语句，推荐使用switch
+	// 如果太多嵌套的 if 语句，推荐使用 switch
 	x := 1
 	switch x {
 	case 0:
 	case 1:
-		// 隐式调用break语句，匹配上一个即停止
+		// 隐式调用 break 语句，匹配上一个即停止
 	case 2:
 		// 不会运行
 	}
-	// 和if一样，for也不用括号
+	// 和 if 一样，for 也不用括号
 	for x := 0; x < 3; x++ { // ++ 自增
 		fmt.Println("遍历", x)
 	}
-	// x在这里还是1。为什么？
+	// x 在这里还是 1，为什么？
 
-	// for 是go里唯一的循环关键字，不过它有很多变种
+	// for 是 go 里唯一的循环关键字，不过它有很多变种
 	for { // 死循环
 		break    // 骗你的
 		continue // 不会运行的
 	}
 
-	// 用range可以枚举 array、slice、string、map、channel等不同类型
-	// 对于channel，range返回一个值，
-	// array、slice、string、map等其他类型返回一对儿
+	// 用 range 可以枚举 array、slice、string、map、channel 等不同类型
+	// 对于 channel 来说，range 会返回一个值，
+	// 而 array、slice、string、map 等其他类型返回一对儿
 	for key, value := range map[string]int{"one": 1, "two": 2, "three": 3} {
-		// 打印map中的每一个键值对
+		// 打印 map 中的每一个键值对
 		fmt.Printf("索引：%s, 值为：%d\n", key, value)
 	}
 	// 如果你只想要值，那就用前面讲的下划线扔掉没用的
@@ -188,7 +188,7 @@ func learnFlowControl() {
 		fmt.Printf("你是。。 %s\n", name)
 	}
 
-	// 和for一样，if中的:=先给y赋值，然后再和x作比较。
+	// 和 for 一样，if 中的 := 先给 y 赋值，然后再和 x 作比较。
 	if y := expensiveComputation(); y > x {
 		x = y
 	}
@@ -196,9 +196,9 @@ func learnFlowControl() {
 	xBig := func() bool {
 		return x > 100 // x是上面声明的变量引用
 	}
-	fmt.Println("xBig:", xBig()) // true （上面把y赋给x了）
-	x /= 1e5                     // x变成10
-	fmt.Println("xBig:", xBig()) // 现在是false
+	fmt.Println("xBig:", xBig()) // true （上面把 y 赋给 x 了）
+	x /= 1e5                     // x 变成 10
+	fmt.Println("xBig:", xBig()) // 现在是 false
 
 	// 除此之外，函数体可以在其他函数中定义并调用，
 	// 满足下列条件时，也可以作为参数传递给其他函数：
@@ -210,12 +210,12 @@ func learnFlowControl() {
 		}(10, 2)) // Called with args 10 and 2
 	// => Add + double two numbers: 24
 
-	// 当你需要goto的时候，你会爱死它的！
+	// 当你需要 goto 的时候，你会爱死它的！
 	goto love
 love:
 
 	learnFunctionFactory() // 返回函数的函数多棒啊
-	learnDefer()      // 对defer关键字的简单介绍
+	learnDefer()      // 对 defer 关键字的简单介绍
 	learnInterfaces() // 好东西来了！
 }
 
@@ -228,7 +228,7 @@ func learnFunctionFactory() {
 	fmt.Println(d("你怎么可以", "她？"))
 }
 
-// Decorator在一些语言中很常见，在go语言中，
+// Decorator 在一些语言中很常见，在 go 语言中，
 // 接受参数作为其定义的一部分的函数是修饰符的替代品
 func sentenceFactory(mystring string) func(before, after string) string {
 	return func(before, after string) string {
@@ -237,28 +237,28 @@ func sentenceFactory(mystring string) func(before, after string) string {
 }
 
 func learnDefer() (ok bool) {
-	// defer表达式在函数返回的前一刻执行
-	defer fmt.Println("defer表达式执行顺序为后进先出（LIFO）")
+	// defer 表达式在函数返回的前一刻执行
+	defer fmt.Println("defer 表达式执行顺序为后进先出（LIFO）")
 	defer fmt.Println("\n这句话比上句话先输出，因为")
-	// 关于defer的用法，例如用defer关闭一个文件，
+	// 关于 defer 的用法，例如用 defer 关闭一个文件，
 	// 就可以让关闭操作与打开操作的代码更近一些
 	return true
 }
 
-// 定义Stringer为一个接口类型，有一个方法String
+// 定义 Stringer 为一个接口类型，有一个方法 String
 type Stringer interface {
 	String() string
 }
 
-// 定义pair为一个结构体，有x和y两个int型变量。
+// 定义 pair 为一个结构体，有 x 和 y 两个 int 型变量。
 type pair struct {
 	x, y int
 }
 
-// 定义pair类型的方法，实现Stringer接口。
-func (p pair) String() string { // p被叫做“接收器”
-	// Sprintf是fmt包中的另一个公有函数。
-	// 用 . 调用p中的元素。
+// 定义 pair 类型的方法，实现 Stringer 接口。
+func (p pair) String() string { // p 被叫做“接收器”
+	// Sprintf 是 fmt 包中的另一个公有函数。
+	// 用 . 调用 p 中的元素。
 	return fmt.Sprintf("(%d, %d)", p.x, p.y)
 }
 

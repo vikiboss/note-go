@@ -6,5 +6,6 @@ import (
 )
 
 func main() {
-	fmt.Print("Hello Go, and now is ", time.Now().Format("2006-01-02 15:04:05"))
+	formatStr := "2006-01-02 15:04:05"
+	fmt.Print("Hello Go! And now is ", time.Now().Format(formatStr))
 }
