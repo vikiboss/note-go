@@ -263,17 +263,17 @@ func (p pair) String() string { // p 被叫做“接收器”
 }
 
 func learnInterfaces() {
-	// 花括号用来定义结构体变量，:=在这里将一个结构体变量赋值给p。
+	// 花括号用来定义结构体变量，:= 在这里将一个结构体变量赋值给 p。
 	p := pair{3, 4}
-	fmt.Println(p.String()) // 调用pair类型p的String方法
-	var i Stringer          // 声明i为Stringer接口类型
-	i = p                   // 有效！因为p实现了Stringer接口（类似java中的塑型）
-	// 调用i的String方法，输出和上面一样
+	fmt.Println(p.String()) // 调用 pair 类型p的 String 方法
+	var i Stringer          // 声明 i 为 Stringer 接口类型
+	i = p                   // 有效！因为 p 实现了 Stringer 接口（类似 Java 中的塑型）
+	// 调用 i 的 String 方法，输出和上面一样
 	fmt.Println(i.String())
 
-	// fmt包中的Println函数向对象要它们的string输出，实现了String方法就可以这样使用了。
-	// （类似java中的序列化）
-	fmt.Println(p) // 输出和上面一样，自动调用String函数。
+	// fmt 包中的 Println 函数向对象要它们的 string 输出，实现了 String 方法就可以这样使用了。
+	// （类似 Java 中的序列化）
+	fmt.Println(p) // 输出和上面一样，自动调用 String 函数。
 	fmt.Println(i) // 输出和上面一样。
 
 	learnVariadicParams("great", "learning", "here!")
@@ -296,60 +296,60 @@ func learnVariadicParams(myStrings ...interface{}) {
 func learnErrorHandling() {
 	// ", ok"用来判断有没有正常工作
 	m := map[int]string{3: "three", 4: "four"}
-	if x, ok := m[1]; !ok { // ok 为false，因为m中没有1
+	if x, ok := m[1]; !ok { // ok 为 false，因为 m 中没有 1
 		fmt.Println("别找了真没有")
 	} else {
-		fmt.Print(x) // 如果x在map中的话，x就是那个值喽。
+		fmt.Print(x) // 如果 x 在 map 中的话，x 就是那个值喽。
 	}
-	// 错误可不只是ok，它还可以给出关于问题的更多细节。
+	// 错误可不只是 ok，它还可以给出关于问题的更多细节。
 	if _, err := strconv.Atoi("non-int"); err != nil { // _ discards value
-		// 输出"strconv.ParseInt: parsing "non-int": invalid syntax"
+		// 输出 "strconv.ParseInt: parsing "non-int": invalid syntax"
 		fmt.Println(err)
 	}
 	// 待会再说接口吧。同时，
 	learnConcurrency()
 }
 
-// c是channel类型，一个并发安全的通信对象。
+// c 是 channel 类型，一个并发安全的通信对象。
 func inc(i int, c chan int) {
-	c <- i + 1 // <-把右边的发送到左边的channel。
+	c <- i + 1 // <- 把右边的发送到左边的 channel。
 }
 
 // 我们将用inc函数来并发地增加一些数字。
 func learnConcurrency() {
-	// 用make来声明一个slice，make会分配和初始化slice，map和channel。
+	// 用 make 来声明一个 slice，make 会分配和初始化 slice，map 和 channel。
 	c := make(chan int)
-	// 用go关键字开始三个并发的goroutine，如果机器支持的话，还可能是并行执行。
-	// 三个都被发送到同一个channel。
+	// 用 go 关键字开始三个并发的 goroutine，如果机器支持的话，还可能是并行执行。
+	// 三个都被发送到同一个 channel。
 	go inc(0, c) // go is a statement that starts a new goroutine.
 	go inc(10, c)
 	go inc(-805, c)
-	// 从channel中读取结果并打印。
+	// 从 channel 中读取结果并打印。
 	// 打印出什么东西是不可预知的。
-	fmt.Println(<-c, <-c, <-c) // channel在右边的时候，<-是读操作。
+	fmt.Println(<-c, <-c, <-c) // channel 在右边的时候，<-是读操作。
 
-	cs := make(chan string)       // 操作string的channel
-	cc := make(chan chan string)  // 操作channel的channel
-	go func() { c <- 84 }()       // 开始一个goroutine来发送一个新的数字
-	go func() { cs <- "wordy" }() // 发送给cs
-	// Select类似于switch，但是每个case包括一个channel操作。
-	// 它随机选择一个准备好通讯的case。
+	cs := make(chan string)       // 操作 string 的 channel
+	cc := make(chan chan string)  // 操作 channel 的 channel
+	go func() { c <- 84 }()       // 开始一个 goroutine 来发送一个新的数字
+	go func() { cs <- "wordy" }() // 发送给 cs
+	// Select 类似于 switch，但是每个 case 包括一个 channel 操作。
+	// 它随机选择一个准备好通讯的 case。
 	select {
-	case i := <-c: // 从channel接收的值可以赋给其他变量
+	case i := <-c: // 从 channel 接收的值可以赋给其他变量
 		fmt.Println("这是……", i)
 	case <-cs: // 或者直接丢弃
 		fmt.Println("这是个字符串！")
 	case <-cc: // 空的，还没作好通讯的准备
 		fmt.Println("别瞎想")
 	}
-	// 上面c或者cs的值被取到，其中一个goroutine结束，另外一个一直阻塞。
+	// 上面 c 或者 cs 的值被取到，其中一个 goroutine 结束，另外一个一直阻塞。
 
-	learnWebProgramming() // Go很适合web编程，我知道你也想学！
+	learnWebProgramming() // Go 很适合 web 编程，我知道你也想学！
 }
 
-// http包中的一个简单的函数就可以开启web服务器。
+// http 包中的一个简单的函数就可以开启 web 服务器。
 func learnWebProgramming() {
-	// ListenAndServe第一个参数指定了监听端口，第二个参数是一个接口，特定是http.Handler。
+	// ListenAndServe 第一个参数指定了监听端口，第二个参数是一个接口，特定是 http.Handler。
 	go func() {
 		err := http.ListenAndServe(":8080", pair{})
 		fmt.Println(err) // 不要无视错误。
@@ -358,9 +358,9 @@ func learnWebProgramming() {
 	requestServer()
 }
 
-// 使pair实现http.Handler接口的ServeHTTP方法。
+// 使 pair 实现 http.Handler 接口的 ServeHTTP 方法。
 func (p pair) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// 使用http.ResponseWriter返回数据
+	// 使用 http.ResponseWriter 返回数据
 	w.Write([]byte("Y分钟golang速成!"))
 }
 

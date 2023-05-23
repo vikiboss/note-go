@@ -6,15 +6,15 @@ import (
 
 func main() {
 	obj := &struct {
-		name string
-		age  int
+		name      string
+		birthYear int
 	}{
-		name: "Go",
-		age:  10,
+		name:      "Go",
+		birthYear: 2009,
 	}
 
 	myMap := map[string]string{"Go": "go", "Node.js": "node"}
 
-	fmt.Printf("Hello %s, and you are %d years old!\n", obj.name, obj.age)
+	fmt.Printf("Hello %s! Your birth year is %d!\n", obj.name, obj.birthYear)
 	fmt.Printf("I love %s and %s\n", myMap["Go"], myMap["Node.js"])
 }
