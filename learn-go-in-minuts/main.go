@@ -265,7 +265,7 @@ func (p pair) String() string { // p 被叫做“接收器”
 func learnInterfaces() {
 	// 花括号用来定义结构体变量，:= 在这里将一个结构体变量赋值给 p。
 	p := pair{3, 4}
-	fmt.Println(p.String()) // 调用 pair 类型p的 String 方法
+	fmt.Println(p.String()) // 调用 pair 类型 p 的 String 方法
 	var i Stringer          // 声明 i 为 Stringer 接口类型
 	i = p                   // 有效！因为 p 实现了 Stringer 接口（类似 Java 中的塑型）
 	// 调用 i 的 String 方法，输出和上面一样
