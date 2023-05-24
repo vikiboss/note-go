@@ -4,15 +4,17 @@ import (
 	"fmt"
 )
 
-func main() {
-	obj := &struct {
-		name      string
-		birthYear int
-	}{
-		name:      "Go",
-		birthYear: 2009,
-	}
+type ObjectStruct struct {
+	name      string
+	birthYear int
+}
 
+var obj = &ObjectStruct{
+	name:      "Go",
+	birthYear: 2009,
+}
+
+func main() {
 	myMap := map[string]string{"Go": "go", "Node.js": "node"}
 
 	fmt.Printf("Hello %s! Your birth year is %d!\n", obj.name, obj.birthYear)
