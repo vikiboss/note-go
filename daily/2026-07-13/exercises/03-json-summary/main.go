@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 )
 
 type task struct {
@@ -18,6 +19,9 @@ func summarize(data []byte) (total, done int, err error) {
 		return 0, 0, fmt.Errorf("decode tasks: %w", err)
 	}
 	for _, t := range tasks {
+		if strings.TrimSpace(t.Title) == "" {
+			return 0, 0, fmt.Errorf("decode tasks: title is required")
+		}
 		if t.Done {
 			done++
 		}

@@ -2,11 +2,14 @@ package taskstore
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"sync"
 )
+
+var ErrTaskNotFound = errors.New("task not found")
 
 type Task struct {
 	ID             int    `json:"id"`
@@ -47,13 +50,51 @@ func (s *Store) Create(key, payload string) (Task, error) {
 			return task, nil
 		}
 	}
-	task := Task{ID: len(s.tasks) + 1, IdempotencyKey: key, Payload: payload, Status: "pending"}
+	nextID := 1
+	for _, existing := range s.tasks {
+		if existing.ID >= nextID {
+			nextID = existing.ID + 1
+		}
+	}
+	task := Task{ID: nextID, IdempotencyKey: key, Payload: payload, Status: "pending"}
 	next := append(append([]Task(nil), s.tasks...), task)
 	if err := s.persist(next); err != nil {
 		return Task{}, err
 	}
 	s.tasks = next
 	return task, nil
+}
+
+func (s *Store) UpdateStatus(id int, nextStatus string) (Task, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	next := append([]Task(nil), s.tasks...)
+	for index, task := range next {
+		if task.ID != id {
+			continue
+		}
+		if !validTransition(task.Status, nextStatus) {
+			return Task{}, fmt.Errorf("task %d: invalid status transition %q -> %q", id, task.Status, nextStatus)
+		}
+		next[index].Status = nextStatus
+		if err := s.persist(next); err != nil {
+			return Task{}, err
+		}
+		s.tasks = next
+		return next[index], nil
+	}
+	return Task{}, fmt.Errorf("update task %d: %w", id, ErrTaskNotFound)
+}
+
+func validTransition(current, next string) bool {
+	switch current {
+	case "pending":
+		return next == "running"
+	case "running":
+		return next == "done" || next == "failed"
+	default:
+		return false
+	}
 }
 
 func (s *Store) List() []Task {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -8,6 +9,16 @@ import (
 	"os"
 	"time"
 )
+
+type HTTPStatusError struct {
+	URL        string
+	StatusCode int
+	Preview    string
+}
+
+func (e *HTTPStatusError) Error() string {
+	return fmt.Sprintf("GET %s: unexpected HTTP status %d: %s", e.URL, e.StatusCode, e.Preview)
+}
 
 func fetch(url string) (int, []byte, error) {
 	client := &http.Client{Timeout: 5 * time.Second}
@@ -25,6 +36,13 @@ func fetchWithClient(client *http.Client, url string) (int, []byte, error) {
 	if err != nil {
 		return resp.StatusCode, nil, fmt.Errorf("read response: %w", err)
 	}
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return resp.StatusCode, nil, &HTTPStatusError{
+			URL:        url,
+			StatusCode: resp.StatusCode,
+			Preview:    string(body),
+		}
+	}
 	return resp.StatusCode, body, nil
 }
 
@@ -34,6 +52,10 @@ func main() {
 
 	status, body, err := fetch(*url)
 	if err != nil {
+		var statusErr *HTTPStatusError
+		if errors.As(err, &statusErr) {
+			fmt.Fprintf(os.Stderr, "remote service rejected the request (status=%d)\n", statusErr.StatusCode)
+		}
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}

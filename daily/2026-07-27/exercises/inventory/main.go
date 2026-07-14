@@ -41,6 +41,27 @@ func (i *Inventory) Get(sku string) (Item, error) {
 	return item, nil
 }
 
+func (i *Inventory) UpdateQuantity(sku string, quantity int) error {
+	if quantity < 0 {
+		return fmt.Errorf("update %q: quantity must be non-negative", sku)
+	}
+	item, err := i.Get(sku)
+	if err != nil {
+		return fmt.Errorf("update quantity: %w", err)
+	}
+	item.Quantity = quantity
+	i.items[sku] = item
+	return nil
+}
+
+func (i *Inventory) Delete(sku string) error {
+	if _, err := i.Get(sku); err != nil {
+		return fmt.Errorf("delete item: %w", err)
+	}
+	delete(i.items, sku)
+	return nil
+}
+
 func (i *Inventory) Export() ([]byte, error) {
 	items := make([]Item, 0, len(i.items))
 	for _, item := range i.items {

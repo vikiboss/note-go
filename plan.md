@@ -4,6 +4,8 @@
 
 仓库中的配套材料位于 `daily/YYYY-MM-DD`。日期是每周一；每个目录都是一周的学习单元，包含说明、可运行示例、练习和测试。
 
+从 [daily/README.md](daily/README.md) 进入可查看完整课程索引。建议始终从当周 README 的“开始前诊断/任务梯度”开始，而不是直接照抄实现。
+
 ## 1. 最终能力目标
 
 完成后，你应该能够：
@@ -179,6 +181,8 @@ go test -bench=. -benchmem ./...
 
 ## 7. 学习资料优先级
 
+逐周章节、固定教材版本、阅读程度和完成证据见 [daily/reading-guide.md](daily/reading-guide.md)；不要只按下面的总书单从头通读。
+
 1. [A Tour of Go](https://go.dev/tour/)
 2. [Go 官方教程](https://go.dev/doc/tutorial/)
 3. [Effective Go](https://go.dev/doc/effective_go)
@@ -189,4 +193,3 @@ go test -bench=. -benchmem ./...
 8. 标准库源码：`io`、`context`、`sync`、`net`、`net/http`、`encoding/json`、`testing`
 
 前端背景通常能很快掌握语法。真正决定 Go 水平的是：能否画清数据所有权、错误边界、资源生命周期与并发退出路径。因此，至少一半实践时间应投入这些部分，而不是只刷语法题或只搭 Web API。
-

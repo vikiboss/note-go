@@ -5,7 +5,15 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"unicode/utf8"
 )
+
+type textStats struct {
+	Bytes int
+	Runes int
+	Words int
+	Lines int
+}
 
 func readText(path string) (string, error) {
 	data, err := os.ReadFile(path)
@@ -13,6 +21,21 @@ func readText(path string) (string, error) {
 		return "", fmt.Errorf("read %q: %w", path, err)
 	}
 	return string(data), nil
+}
+
+func summarizeText(text string) textStats {
+	stats := textStats{
+		Bytes: len(text),
+		Runes: utf8.RuneCountInString(text),
+		Words: len(strings.Fields(text)),
+	}
+	if text != "" {
+		stats.Lines = strings.Count(text, "\n") + 1
+		if strings.HasSuffix(text, "\n") {
+			stats.Lines--
+		}
+	}
+	return stats
 }
 
 func main() {
@@ -29,6 +52,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	words := len(strings.Fields(text))
-	fmt.Printf("bytes: %d, words: %d\n%s", len(text), words, text)
+	stats := summarizeText(text)
+	fmt.Printf("bytes: %d, runes: %d, words: %d, lines: %d\n%s", stats.Bytes, stats.Runes, stats.Words, stats.Lines, text)
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -22,5 +23,14 @@ func TestRunIncludesLineNumber(t *testing.T) {
 	err := Run(strings.NewReader("{\"level\":\"info\"}\nnot-json\n"), &out)
 	if err == nil || !strings.Contains(err.Error(), "line 2") {
 		t.Fatalf("error = %v, want line 2", err)
+	}
+}
+
+func TestRunAcceptsLineLargerThanScannerDefault(t *testing.T) {
+	padding := strings.Repeat("x", 70<<10)
+	input := fmt.Sprintf("{\"level\":\"info\",\"padding\":%q}\n", padding)
+	var out bytes.Buffer
+	if err := Run(strings.NewReader(input), &out); err != nil {
+		t.Fatalf("Run() rejected valid 70 KiB line: %v", err)
 	}
 }

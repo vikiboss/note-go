@@ -41,14 +41,14 @@ func Apply(ctx context.Context, sourceRoot, targetRoot string, actions []Action)
 		if err := ctx.Err(); err != nil {
 			return err
 		}
-		if err := copyAtomic(sourceRoot, targetRoot, action.Path); err != nil {
+		if err := copyAtomic(ctx, sourceRoot, targetRoot, action.Path); err != nil {
 			return fmt.Errorf("%s %q: %w", action.Kind, action.Path, err)
 		}
 	}
 	return nil
 }
 
-func copyAtomic(sourceRoot, targetRoot, relative string) error {
+func copyAtomic(ctx context.Context, sourceRoot, targetRoot, relative string) error {
 	clean := filepath.Clean(filepath.FromSlash(relative))
 	if clean == "." || filepath.IsAbs(clean) || clean == ".." || len(clean) >= 3 && clean[:3] == ".."+string(filepath.Separator) {
 		return fmt.Errorf("unsafe relative path %q", relative)
@@ -69,7 +69,7 @@ func copyAtomic(sourceRoot, targetRoot, relative string) error {
 	}
 	tmpName := tmp.Name()
 	defer os.Remove(tmpName)
-	if _, err := io.Copy(tmp, source); err != nil {
+	if _, err := copyWithContext(ctx, tmp, source); err != nil {
 		tmp.Close()
 		return err
 	}
@@ -81,4 +81,34 @@ func copyAtomic(sourceRoot, targetRoot, relative string) error {
 		return err
 	}
 	return os.Rename(tmpName, targetPath)
+}
+
+func copyWithContext(ctx context.Context, dst io.Writer, src io.Reader) (int64, error) {
+	buffer := make([]byte, 32<<10)
+	var written int64
+	for {
+		if err := ctx.Err(); err != nil {
+			return written, err
+		}
+		n, readErr := src.Read(buffer)
+		if n > 0 {
+			wn, writeErr := dst.Write(buffer[:n])
+			written += int64(wn)
+			if writeErr != nil {
+				return written, writeErr
+			}
+			if wn != n {
+				return written, io.ErrShortWrite
+			}
+		}
+		if readErr != nil {
+			if readErr == io.EOF {
+				return written, nil
+			}
+			return written, readErr
+		}
+		if n == 0 {
+			return written, io.ErrNoProgress
+		}
+	}
 }

@@ -6,8 +6,9 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"sort"
 )
+
+const maxJSONLLine = 1 << 20
 
 type Event struct {
 	Level string `json:"level"`
@@ -20,6 +21,7 @@ type Summary struct {
 
 func Run(r io.Reader, w io.Writer) error {
 	scanner := bufio.NewScanner(r)
+	scanner.Buffer(make([]byte, 64<<10), maxJSONLLine)
 	summary := Summary{Levels: make(map[string]int)}
 	line := 0
 	for scanner.Scan() {
@@ -37,14 +39,7 @@ func Run(r io.Reader, w io.Writer) error {
 	if err := scanner.Err(); err != nil {
 		return fmt.Errorf("scan input: %w", err)
 	}
-	// Touch sorted keys to make the stability requirement explicit; encoding/json
-	// also emits string map keys in lexical order.
-	keys := make([]string, 0, len(summary.Levels))
-	for key := range summary.Levels {
-		keys = append(keys, key)
-	}
-	sort.Strings(keys)
-	_ = keys
+	// encoding/json emits string map keys in lexical order, so CLI output is stable.
 	return json.NewEncoder(w).Encode(summary)
 }
 

@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"sort"
 	"testing"
 )
 
@@ -12,11 +11,10 @@ func TestSquares(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	sort.Slice(got, func(i, j int) bool { return got[i].Input < got[j].Input })
-	want := []int{1, 4, 9}
+	want := []Result{{Input: 3, Value: 9}, {Input: 1, Value: 1}, {Input: 2, Value: 4}}
 	for i, result := range got {
-		if result.Value != want[i] {
-			t.Fatalf("result[%d] = %#v", i, result)
+		if result != want[i] {
+			t.Fatalf("result[%d] = %#v, want %#v", i, result, want[i])
 		}
 	}
 }
@@ -27,5 +25,11 @@ func TestSquaresCancellation(t *testing.T) {
 	_, err := Squares(ctx, []int{1, 2, 3}, 2)
 	if !errors.Is(err, context.Canceled) {
 		t.Fatalf("error = %v, want context.Canceled", err)
+	}
+}
+
+func TestSquaresRejectsInvalidWorkerCount(t *testing.T) {
+	if _, err := Squares(context.Background(), []int{1}, 0); err == nil {
+		t.Fatal("expected worker validation error")
 	}
 }

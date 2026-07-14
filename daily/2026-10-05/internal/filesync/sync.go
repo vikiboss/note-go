@@ -43,7 +43,7 @@ func Sync(ctx context.Context, sourceRoot, targetRoot string, dryRun bool) ([]Ac
 		if err := ctx.Err(); err != nil {
 			return actions, err
 		}
-		if err := copyAtomic(sourceRoot, targetRoot, action.Path); err != nil {
+		if err := copyAtomic(ctx, sourceRoot, targetRoot, action.Path); err != nil {
 			return actions, fmt.Errorf("%s %q: %w", action.Kind, action.Path, err)
 		}
 	}
@@ -86,7 +86,7 @@ func scan(root string) (map[string]string, error) {
 	return hashes, err
 }
 
-func copyAtomic(sourceRoot, targetRoot, relative string) error {
+func copyAtomic(ctx context.Context, sourceRoot, targetRoot, relative string) error {
 	clean := filepath.Clean(filepath.FromSlash(relative))
 	if clean == "." || filepath.IsAbs(clean) || clean == ".." || len(clean) >= 3 && clean[:3] == ".."+string(filepath.Separator) {
 		return fmt.Errorf("unsafe relative path")
@@ -106,7 +106,7 @@ func copyAtomic(sourceRoot, targetRoot, relative string) error {
 	}
 	name := tmp.Name()
 	defer os.Remove(name)
-	if _, err := io.Copy(tmp, source); err != nil {
+	if _, err := copyWithContext(ctx, tmp, source); err != nil {
 		tmp.Close()
 		return err
 	}
@@ -118,4 +118,34 @@ func copyAtomic(sourceRoot, targetRoot, relative string) error {
 		return err
 	}
 	return os.Rename(name, target)
+}
+
+func copyWithContext(ctx context.Context, dst io.Writer, src io.Reader) (int64, error) {
+	buffer := make([]byte, 32<<10)
+	var written int64
+	for {
+		if err := ctx.Err(); err != nil {
+			return written, err
+		}
+		n, readErr := src.Read(buffer)
+		if n > 0 {
+			wn, writeErr := dst.Write(buffer[:n])
+			written += int64(wn)
+			if writeErr != nil {
+				return written, writeErr
+			}
+			if wn != n {
+				return written, io.ErrShortWrite
+			}
+		}
+		if readErr != nil {
+			if readErr == io.EOF {
+				return written, nil
+			}
+			return written, readErr
+		}
+		if n == 0 {
+			return written, io.ErrNoProgress
+		}
+	}
 }

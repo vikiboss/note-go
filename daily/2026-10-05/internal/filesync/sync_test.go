@@ -1,11 +1,28 @@
 package filesync
 
 import (
+	"bytes"
 	"context"
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
 )
+
+type cancelReader struct {
+	cancel context.CancelFunc
+	done   bool
+}
+
+func (r *cancelReader) Read(p []byte) (int, error) {
+	if r.done {
+		return 0, errors.New("unexpected second read")
+	}
+	r.done = true
+	copy(p, "chunk")
+	r.cancel()
+	return len("chunk"), nil
+}
 
 func TestSyncDryRunAndApply(t *testing.T) {
 	source, target := t.TempDir(), t.TempDir()
@@ -35,5 +52,17 @@ func TestSyncDryRunAndApply(t *testing.T) {
 	actions, err = Sync(context.Background(), source, target, false)
 	if err != nil || len(actions) != 0 {
 		t.Fatalf("second sync = %#v, %v", actions, err)
+	}
+}
+
+func TestCopyWithContextCanCancelLargeFileMidStream(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	var dst bytes.Buffer
+	_, err := copyWithContext(ctx, &dst, &cancelReader{cancel: cancel})
+	if !errors.Is(err, context.Canceled) {
+		t.Fatalf("error = %v, want context.Canceled", err)
+	}
+	if dst.String() != "chunk" {
+		t.Fatalf("partial output = %q", dst.String())
 	}
 }

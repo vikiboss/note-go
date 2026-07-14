@@ -2,6 +2,17 @@
 
 目标：把测试当成设计反馈，而不只是覆盖率数字。
 
+## 精确阅读路线（100–140 分钟）
+
+| 程度 | 阅读内容 | 读到哪里 | 完成证据 |
+| --- | --- | --- | --- |
+| 精读 | 《Learning Go, 2e》Ch.15 | 单元测试、table tests、coverage、benchmarks 全部；fuzzing 可选读 | 自己写一个表驱动测试和 benchmark |
+| 通读 | Ch.11 中 go test、code quality、lint/tooling 相关部分 | 跳过暂时不用的构建自动化 | 解释 test、vet、race 各自证明什么 |
+| 精读 | [testing package](https://pkg.go.dev/testing) | Overview、Subtests、Benchmarks | benchmark 把 setup 移出计时区 |
+| 精读 | [Using Subtests and Sub-benchmarks](https://go.dev/blog/subtests)、[Data Race Detector](https://go.dev/doc/articles/race_detector) | 两篇完整读完 | 临时制造竞态并保存 detector 报告 |
+
+覆盖率只用于发现未执行路径，不作为质量分数。
+
 ## 学、练、做
 
 - 学：表驱动、子测试、`t.Helper`、`t.Cleanup`、benchmark、race detector。
@@ -29,3 +40,12 @@ Node 单线程事件循环常让共享内存竞态不显眼；Go 中两个 gorou
 
 完成标准：竞态检测通过；有表驱动、并发、benchmark；能解释 benchmark 为什么要避免把 setup 算进去。
 
+## 任务梯度与证据
+
+- 基础：运行测试、覆盖率、race 与 benchmark，保存原始输出。
+- 标准：临时去掉锁，让 race detector 给出证据；恢复后验证 Value 与 Add 的锁粒度。
+- 挑战：实现 mutex 与 atomic 两版计数器，用并行 benchmark 比较，说明结论适用的工作负载。
+
+不要提交带竞态的最终代码。实验过程写进复盘即可。
+
+自检：测试通过而 race 失败意味着什么？benchmark 更快是否足以证明生产环境更好？

@@ -4,7 +4,7 @@ import "testing"
 
 func TestCatalogSearchIsSortedAndDefensive(t *testing.T) {
 	var c Catalog
-	inputTags := []string{"language"}
+	inputTags := []string{" Language ", "language", ""}
 	for _, item := range []Item{
 		{Name: "Zulu Go", Stock: 2, Tags: inputTags},
 		{Name: "Alpha Go", Stock: 1},
@@ -21,7 +21,8 @@ func TestCatalogSearchIsSortedAndDefensive(t *testing.T) {
 		t.Fatalf("unexpected result: %#v", got)
 	}
 	got[1].Tags[0] = "mutated"
-	if c.Items()[2].Tags[0] != "language" {
+	items := c.Items()
+	if items[len(items)-1].Tags[0] != "language" || len(items[len(items)-1].Tags) != 1 {
 		t.Fatal("caller mutated catalog through returned slice")
 	}
 }

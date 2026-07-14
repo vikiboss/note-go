@@ -36,3 +36,26 @@ func TestInventoryErrorsRemainInspectable(t *testing.T) {
 		t.Fatal("Import accepted negative quantity")
 	}
 }
+
+func TestInventoryUpdateAndDelete(t *testing.T) {
+	inv := NewInventory()
+	if err := inv.Put(Item{SKU: "go-book", Quantity: 1}); err != nil {
+		t.Fatal(err)
+	}
+	if err := inv.UpdateQuantity("go-book", 3); err != nil {
+		t.Fatal(err)
+	}
+	got, _ := inv.Get("go-book")
+	if got.Quantity != 3 {
+		t.Fatalf("quantity = %d, want 3", got.Quantity)
+	}
+	if err := inv.Delete("go-book"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := inv.Get("go-book"); !errors.Is(err, ErrNotFound) {
+		t.Fatalf("error = %v, want ErrNotFound", err)
+	}
+	if err := inv.UpdateQuantity("missing", 1); !errors.Is(err, ErrNotFound) {
+		t.Fatalf("wrapped error = %v, want ErrNotFound", err)
+	}
+}

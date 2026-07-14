@@ -11,21 +11,34 @@ type Result struct {
 	Value int
 }
 
+type indexedJob struct {
+	index int
+	input int
+}
+
+type indexedResult struct {
+	index  int
+	result Result
+}
+
 func Squares(ctx context.Context, inputs []int, workers int) ([]Result, error) {
 	if workers < 1 {
 		return nil, fmt.Errorf("workers must be positive")
 	}
-	jobs := make(chan int)
-	results := make(chan Result)
+	jobs := make(chan indexedJob)
+	results := make(chan indexedResult)
 	var wg sync.WaitGroup
 
 	for range workers {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			for n := range jobs {
+			for job := range jobs {
 				select {
-				case results <- Result{Input: n, Value: n * n}:
+				case results <- indexedResult{
+					index:  job.index,
+					result: Result{Input: job.input, Value: job.input * job.input},
+				}:
 				case <-ctx.Done():
 					return
 				}
@@ -34,9 +47,9 @@ func Squares(ctx context.Context, inputs []int, workers int) ([]Result, error) {
 	}
 	go func() {
 		defer close(jobs)
-		for _, n := range inputs {
+		for index, input := range inputs {
 			select {
-			case jobs <- n:
+			case jobs <- indexedJob{index: index, input: input}:
 			case <-ctx.Done():
 				return
 			}
@@ -47,9 +60,9 @@ func Squares(ctx context.Context, inputs []int, workers int) ([]Result, error) {
 		close(results)
 	}()
 
-	var out []Result
+	out := make([]Result, len(inputs))
 	for result := range results {
-		out = append(out, result)
+		out[result.index] = result.result
 	}
 	if err := ctx.Err(); err != nil {
 		return nil, err

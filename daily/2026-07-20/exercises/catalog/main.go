@@ -24,7 +24,20 @@ func (c *Catalog) Add(item Item) error {
 	if item.Stock < 0 {
 		return fmt.Errorf("stock must be non-negative")
 	}
-	item.Tags = append([]string(nil), item.Tags...)
+	seen := make(map[string]struct{}, len(item.Tags))
+	tags := make([]string, 0, len(item.Tags))
+	for _, tag := range item.Tags {
+		tag = strings.ToLower(strings.TrimSpace(tag))
+		if tag == "" {
+			continue
+		}
+		if _, exists := seen[tag]; exists {
+			continue
+		}
+		seen[tag] = struct{}{}
+		tags = append(tags, tag)
+	}
+	item.Tags = tags
 	c.items = append(c.items, item)
 	return nil
 }

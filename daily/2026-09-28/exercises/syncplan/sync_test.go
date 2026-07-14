@@ -1,12 +1,28 @@
 package syncplan
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"os"
 	"path/filepath"
 	"testing"
 )
+
+type cancelAfterFirstRead struct {
+	cancel context.CancelFunc
+	done   bool
+}
+
+func (r *cancelAfterFirstRead) Read(p []byte) (int, error) {
+	if r.done {
+		return 0, errors.New("reader should not be called again")
+	}
+	r.done = true
+	copy(p, "partial")
+	r.cancel()
+	return len("partial"), nil
+}
 
 func TestPlan(t *testing.T) {
 	source := []Entry{{Path: "b", Hash: "new"}, {Path: "a", Hash: "same"}, {Path: "c", Hash: "x"}}
@@ -20,6 +36,18 @@ func TestPlan(t *testing.T) {
 		if got[i] != want[i] {
 			t.Fatalf("action[%d] = %#v, want %#v", i, got[i], want[i])
 		}
+	}
+}
+
+func TestCopyWithContextStopsDuringFile(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	var dst bytes.Buffer
+	_, err := copyWithContext(ctx, &dst, &cancelAfterFirstRead{cancel: cancel})
+	if !errors.Is(err, context.Canceled) {
+		t.Fatalf("error = %v, want context.Canceled", err)
+	}
+	if dst.String() != "partial" {
+		t.Fatalf("partial output = %q", dst.String())
 	}
 }
 
