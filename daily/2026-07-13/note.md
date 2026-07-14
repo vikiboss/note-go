@@ -1,0 +1,9 @@
+- go mod init path/to/module 初始化 package
+- go 的 import 可以写一个语句然后换行
+- go mod tidy 类似 npm install
+  - 它会自动扫描源码里的 import 然后安装依赖，生成 go.sum 文件
+- 大写字母开头的函数会被标记为导出函数，可以被外部调用
+- go 的代码组织层级
+  - 项目可以包含多个 module
+  - module 可以包含多个 package
+  - package 可能包含 main 函数，是执行入口
